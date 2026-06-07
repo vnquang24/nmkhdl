@@ -26,8 +26,8 @@ N_CHANNELS = len(INERTIAL_CHANNELS)
 
 # User split
 ACTIVITIES = ["sitting", "standing", "walking"]
-UNKNOWN_USERS = ["userD", "userE", "userI"]  # giữ làm open-set
-# 12 known user còn lại sẽ tự suy ra trong code.
+# Closed-set: toàn bộ 15 user trong dataset đều dùng cho train/validation.
+# Không giữ lại user unknown; danh sách 12 known user sẽ tự suy ra trong code.
 
 # Filter
 LOWPASS_CUTOFF = 20.0  # Hz

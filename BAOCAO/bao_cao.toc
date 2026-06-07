@@ -9,34 +9,30 @@
 \contentsline {subsection}{\numberline {2.3}Cách chia dữ liệu}{4}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}Mô hình Random Forest}{5}{subsection.2.4}%
 \contentsline {subsection}{\numberline {2.5}Mô hình CNN 1D}{5}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}Đánh giá open-set}{6}{subsection.2.6}%
 \contentsline {section}{\numberline {3}Kết quả thí nghiệm đánh giá hiệu năng}{6}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Chỉ số đánh giá}{6}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Kết quả tổng thể}{7}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Độ ổn định theo fold}{8}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}Accuracy của Random Forest}{9}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.2}Kết quả tổng thể}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Độ ổn định theo fold}{7}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Accuracy của Random Forest}{8}{subsection.3.4}%
 \contentsline {subsection}{\numberline {3.5}Phân tích CNN theo hoạt động}{9}{subsection.3.5}%
-\contentsline {subsection}{\numberline {3.6}Kết quả open-set}{10}{subsection.3.6}%
 \contentsline {section}{\numberline {4}Các chức năng chính của hệ thống và cách sử dụng}{10}{section.4}%
 \contentsline {subsection}{\numberline {4.1}Chức năng chính}{10}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Cài đặt môi trường}{11}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Chạy pipeline đơn giản}{11}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}Chạy bằng JupyterLab}{12}{subsection.4.4}%
-\contentsline {section}{\numberline {5}Cấu trúc mã nguồn và vai trò các class/method chính}{12}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Tổ chức mã nguồn}{12}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Vai trò các module chính}{12}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}Class và method quan trọng}{13}{subsection.5.3}%
-\contentsline {section}{\numberline {6}Khó khăn gặp phải và cách giải quyết}{13}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Tên file và schema dữ liệu không đồng nhất}{13}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Nguy cơ rò rỉ dữ liệu khi chia train/validation}{13}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Ít file ở một số người dùng}{13}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}Mất cân bằng số cửa sổ giữa các file}{14}{subsection.6.4}%
-\contentsline {subsection}{\numberline {6.5}Dữ liệu cảm biến có nhiễu và khác tần số}{14}{subsection.6.5}%
-\contentsline {subsection}{\numberline {6.6}CNN không vượt Random Forest}{14}{subsection.6.6}%
-\contentsline {subsection}{\numberline {6.7}Open-set còn yếu}{14}{subsection.6.7}%
-\contentsline {subsection}{\numberline {6.8}Tái lập thí nghiệm open-set}{14}{subsection.6.8}%
-\contentsline {section}{\numberline {7}Khám phá mới hoặc kết luận}{14}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Khám phá chính}{14}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}Kết luận}{15}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Hướng phát triển}{15}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}Đóng gói sản phẩm nộp}{15}{subsection.7.4}%
+\contentsline {subsection}{\numberline {4.2}Cài đặt môi trường}{10}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Chạy pipeline đơn giản}{10}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Chạy bằng JupyterLab}{11}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Cấu trúc mã nguồn và vai trò các class/method chính}{11}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Tổ chức mã nguồn}{11}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Vai trò các module chính}{11}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Class và method quan trọng}{12}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Khó khăn gặp phải và cách giải quyết}{12}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Tên file và schema dữ liệu không đồng nhất}{12}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Nguy cơ rò rỉ dữ liệu khi chia train/validation}{12}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Ít file ở một số người dùng}{12}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Mất cân bằng số cửa sổ giữa các file}{13}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Dữ liệu cảm biến có nhiễu và khác tần số}{13}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}CNN không vượt Random Forest}{13}{subsection.6.6}%
+\contentsline {section}{\numberline {7}Khám phá mới hoặc kết luận}{13}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Khám phá chính}{13}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Kết luận}{13}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Hướng phát triển}{14}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Đóng gói sản phẩm nộp}{14}{subsection.7.4}%

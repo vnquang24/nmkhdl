@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.5.14)  31 MAY 2026 16:36
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.6)  6 JUN 2026 21:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -729,64 +729,63 @@ LaTeX Font Info:    Trying to load font information for T5+cmtt on input line 1
 
 (/usr/share/texlive/texmf-dist/tex/latex/vntex/t5cmtt.fd
 File: t5cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
-) [2{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3] [4] [5] [
-6]
-<figures/simple_model_comparison.png, id=288, 505.89pt x 325.215pt>
+) [2{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3] [4] [5]
+<figures/simple_model_comparison.png, id=264, 505.89pt x 325.215pt>
 File: figures/simple_model_comparison.png Graphic file (type png)
 <use figures/simple_model_comparison.png>
 Package pdftex.def Info: figures/simple_model_comparison.png  used on input lin
-e 328.
+e 305.
 (pdftex.def)             Requested size: 355.08984pt x 228.2742pt.
- [7 <./figures/simple_model_comparison.png>]
-<figures/simple_fold_macro_f1.png, id=298, 505.89pt x 325.215pt>
+ [6]
+<figures/simple_fold_macro_f1.png, id=272, 505.89pt x 325.215pt>
 File: figures/simple_fold_macro_f1.png Graphic file (type png)
 <use figures/simple_fold_macro_f1.png>
 Package pdftex.def Info: figures/simple_fold_macro_f1.png  used on input line 3
-55.
+32.
 (pdftex.def)             Requested size: 355.08984pt x 228.2742pt.
-<figures/simple_rf_accuracy.png, id=299, 505.89pt x 303.534pt>
+ [7 <./figures/simple_model_comparison.png>]
+<figures/simple_rf_accuracy.png, id=280, 505.89pt x 303.534pt>
 File: figures/simple_rf_accuracy.png Graphic file (type png)
 <use figures/simple_rf_accuracy.png>
-Package pdftex.def Info: figures/simple_rf_accuracy.png  used on input line 366
+Package pdftex.def Info: figures/simple_rf_accuracy.png  used on input line 343
 .
 (pdftex.def)             Requested size: 355.08984pt x 213.05591pt.
- [8 <./figures/simple_fold_macro_f1.png>]
-<figures/cnn_per_activity.png, id=308, 433.62pt x 289.08pt>
+<figures/cnn_per_activity.png, id=281, 433.62pt x 289.08pt>
 File: figures/cnn_per_activity.png Graphic file (type png)
 <use figures/cnn_per_activity.png>
-Package pdftex.def Info: figures/cnn_per_activity.png  used on input line 379.
+Package pdftex.def Info: figures/cnn_per_activity.png  used on input line 356.
 (pdftex.def)             Requested size: 327.7763pt x 218.52974pt.
-<figures/cnn_confusion.png, id=309, 578.16pt x 505.89pt>
+ [8 <./figures/simple_fold_macro_f1.png> <./figures/simple_rf_accuracy.png>]
+<figures/cnn_confusion.png, id=290, 578.16pt x 505.89pt>
 File: figures/cnn_confusion.png Graphic file (type png)
 <use figures/cnn_confusion.png>
-Package pdftex.def Info: figures/cnn_confusion.png  used on input line 386.
+Package pdftex.def Info: figures/cnn_confusion.png  used on input line 363.
 (pdftex.def)             Requested size: 373.3035pt x 326.64005pt.
- [9 <./figures/simple_rf_accuracy.png> <./figures/cnn_per_activity.png>] [10 <.
-/figures/cnn_confusion.png>] (/usr/share/texlive/texmf-dist/tex/latex/listings/
-lstlang1.sty
+ [9 <./figures/cnn_per_activity.png> <./figures/cnn_confusion.png>] (/usr/share
+/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2023/02/27 1.9 listings language file
 )
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2023/02/27 1.9 listings language file
 )
 LaTeX Font Info:    Font shape `T5/cmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `T5/cmtt/m/n' tried instead on input line 441.
- [11] [12]
-[13] [14] [15] [16] (./bao_cao.aux)
+(Font)              Font shape `T5/cmtt/m/n' tried instead on input line 399.
+ [10] [11]
+[12] [13] [14] (./bao_cao.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `bao_cao.out' has not changed.
-(rerunfilecheck)             Checksum: BB01E27E2E4EA20B24B03D7AACEF4C9E;8382.
+(rerunfilecheck)             Checksum: D0F9C4C68F09D6549DE71903BC399AC0;7707.
  ) 
 Here is how much of TeX's memory you used:
- 15311 strings out of 475597
- 233152 string characters out of 5783339
- 1981975 words of memory out of 5000000
- 37163 multiletter control sequences out of 15000+600000
+ 15298 strings out of 474222
+ 232985 string characters out of 5748734
+ 1980975 words of memory out of 5000000
+ 37253 multiletter control sequences out of 15000+600000
  572310 words of font info for 66 fonts, out of 8000000 for 9000
- 309 hyphenation exceptions out of 8191
+ 1141 hyphenation exceptions out of 8191
  75i,9n,79p,758b,1272s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/shar
@@ -801,10 +800,10 @@ usr/share/texlive/texmf-dist/fonts/type1/vntex/vnr/vnr12.pfb></usr/share/texliv
 e/texmf-dist/fonts/type1/vntex/vnr/vnti12.pfb></usr/share/texlive/texmf-dist/fo
 nts/type1/vntex/vnr/vntt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/vntex
 /vnr/vntt12.pfb>
-Output written on bao_cao.pdf (19 pages, 362639 bytes).
+Output written on bao_cao.pdf (17 pages, 356704 bytes).
 PDF statistics:
- 461 PDF objects out of 1000 (max. 8388607)
- 398 compressed objects within 4 object streams
- 112 named destinations out of 1000 (max. 500000)
- 362 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 428 PDF objects out of 1000 (max. 8388607)
+ 367 compressed objects within 4 object streams
+ 104 named destinations out of 1000 (max. 500000)
+ 330 words of extra memory for PDF output out of 10000 (max. 10000000)
 
