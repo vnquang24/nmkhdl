@@ -1,0 +1,42 @@
+{
+  "name": "SIMPLE_CNN",
+  "phase": "SIMPLE",
+  "notes": "CNN 1D t\u00e1\u00bb\u2018i gi\u00e1\u00ba\u00a3n: 3 l\u00e1\u00bb\u203ap conv, Adam, CrossEntropy, kh\u00c3\u00b4ng scheduler/sweep",
+  "n_splits": 3,
+  "epochs": 40,
+  "batch_size": 128,
+  "seed": 42,
+  "amp": true,
+  "early_stopping_patience": 0,
+  "model": {
+    "type": "cnn",
+    "filters": [
+      32,
+      64,
+      128
+    ],
+    "kernels": [
+      7,
+      5,
+      3
+    ],
+    "dropout": 0.3
+  },
+  "optim": {
+    "type": "adam",
+    "lr": 0.001,
+    "weight_decay": 0.0001
+  },
+  "sched": {
+    "type": "none"
+  },
+  "loss": {
+    "type": "ce",
+    "class_weight": "invfreq"
+  },
+  "augment": {
+    "enabled": false,
+    "mixup_alpha": 0.0,
+    "cutmix_alpha": 0.0
+  }
+}

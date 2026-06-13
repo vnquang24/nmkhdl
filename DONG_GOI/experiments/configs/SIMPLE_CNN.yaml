@@ -1,0 +1,33 @@
+name: SIMPLE_CNN
+phase: SIMPLE
+notes: "CNN 1D tối giản: 3 lớp conv, Adam, CrossEntropy, không scheduler/sweep"
+
+n_splits: 3
+epochs: 40
+batch_size: 128
+seed: 42
+amp: true
+early_stopping_patience: 0
+
+model:
+  type: cnn
+  filters: [32, 64, 128]
+  kernels: [7, 5, 3]
+  dropout: 0.3
+
+optim:
+  type: adam
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+
+sched:
+  type: none
+
+loss:
+  type: ce
+  class_weight: invfreq
+
+augment:
+  enabled: false
+  mixup_alpha: 0.0
+  cutmix_alpha: 0.0

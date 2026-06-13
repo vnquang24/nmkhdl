@@ -1,0 +1,32 @@
+name: E06_mixup
+phase: E
+notes: "Mixup \u03B1=0.2"
+n_splits: 3
+epochs: 80
+batch_size: 128
+seed: 42
+amp: true
+model:
+  type: resnet
+  filters:
+  - 64
+  - 128
+  - 256
+  dropout: 0.3
+optim:
+  type: adam
+  lr: 0.0001
+  weight_decay: 0.0001
+sched:
+  type: onecycle
+  max_lr: 0.003
+loss:
+  type: ce
+  class_weight: invfreq
+augment:
+  enabled: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1
+mixup_alpha: 0.2

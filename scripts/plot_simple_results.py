@@ -23,22 +23,24 @@ def _load_results(path: Path) -> dict:
 
 
 def plot_model_comparison(results: dict, out_path: Path):
-    labels = ["CNN 1D", "Random Forest"]
-    means = [
-        results["cnn"]["mean_macroF1"],
-        results["rf"]["mean_macroF1"],
+    labels, means, stds, colors = [], [], [], []
+    spec = [
+        ("cnn", "CNN 1D", "#4C78A8"),
+        ("rf", "Random Forest", "#59A14F"),
+        ("svm", "SVM (RBF)", "#B279A2"),
     ]
-    stds = [
-        results["cnn"].get("std_macroF1", 0.0),
-        results["rf"].get("std_macroF1", 0.0),
-    ]
+    for key, label, color in spec:
+        if key in results and "mean_macroF1" in results[key]:
+            labels.append(label)
+            means.append(results[key]["mean_macroF1"])
+            stds.append(results[key].get("std_macroF1", 0.0))
+            colors.append(color)
 
-    fig, ax = plt.subplots(figsize=(7, 4.5))
-    colors = ["#4C78A8", "#59A14F"]
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
     bars = ax.bar(labels, means, yerr=stds, capsize=8, color=colors, width=0.55)
     ax.set_ylim(0, 1)
     ax.set_ylabel("Macro-F1")
-    ax.set_title("So sánh kết quả mô hình đơn giản")
+    ax.set_title("So sánh macro-F1 ba mô hình (3-fold)")
     ax.grid(axis="y", alpha=0.25)
     for bar, value in zip(bars, means):
         ax.text(
@@ -56,23 +58,31 @@ def plot_model_comparison(results: dict, out_path: Path):
 
 
 def plot_fold_scores(results: dict, out_path: Path):
-    cnn_folds = results["cnn"].get("fold_f1s", [])
-    rf_folds = results["rf"].get("fold_f1s", [])
-    n_folds = max(len(cnn_folds), len(rf_folds))
+    spec = [
+        ("cnn", "CNN 1D", "#4C78A8"),
+        ("rf", "Random Forest", "#59A14F"),
+        ("svm", "SVM (RBF)", "#B279A2"),
+    ]
+    series = [(label, results[key].get("fold_f1s", []), color)
+              for key, label, color in spec
+              if key in results and results[key].get("fold_f1s")]
+    if not series:
+        return
+    n_folds = max(len(f) for _, f, _ in series)
     folds = np.arange(n_folds)
-    width = 0.36
+    n = len(series)
+    width = 0.8 / n
 
-    fig, ax = plt.subplots(figsize=(7, 4.5))
-    if cnn_folds:
-        ax.bar(folds - width / 2, cnn_folds, width, label="CNN 1D", color="#4C78A8")
-    if rf_folds:
-        ax.bar(folds + width / 2, rf_folds, width, label="Random Forest", color="#59A14F")
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    for i, (label, f1s, color) in enumerate(series):
+        offset = (i - (n - 1) / 2) * width
+        ax.bar(folds + offset, f1s, width, label=label, color=color)
 
     ax.set_xticks(folds)
     ax.set_xticklabels([f"Fold {i + 1}" for i in folds])
     ax.set_ylim(0, 1)
     ax.set_ylabel("Macro-F1")
-    ax.set_title("Độ ổn định qua 3 fold")
+    ax.set_title("Độ ổn định macro-F1 qua 3 fold")
     ax.grid(axis="y", alpha=0.25)
     ax.legend()
     fig.tight_layout()

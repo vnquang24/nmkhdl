@@ -31,7 +31,7 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score, classification_report
 from sklearn.model_selection import StratifiedGroupKFold
 
-from .config import PROCESSED_DIR, MODELS_DIR, UNKNOWN_USERS, SEED
+from .config import PROCESSED_DIR, MODELS_DIR, SEED
 from .datasets import InertialDataset, compute_scaler, mixup_batch, cutmix_batch
 from .models import make_model
 from .experiment import ExperimentLogger
@@ -43,12 +43,6 @@ def load_npz(path: Path | None = None) -> dict:
     path = path or (PROCESSED_DIR / "windows.npz")
     data = np.load(path, allow_pickle=True)
     return {k: data[k] for k in data.files}
-
-
-def split_known_unknown(X, y, activity, groups):
-    """`y` chính là nhãn user (string)."""
-    mask = ~np.isin(y, UNKNOWN_USERS)
-    return X[mask], y[mask], activity[mask], groups[mask]
 
 
 # --------------------------- Loss & weights ---------------------------
@@ -263,11 +257,10 @@ def run_cv(cfg: dict, verbose: bool = True) -> dict:
     data = load_npz()
     X, y, activity, groups = (
         data["X"], data["y"], data["activity"], data["groups"])
-    X, y, activity, groups = split_known_unknown(X, y, activity, groups)
     classes, y_idx = np.unique(y, return_inverse=True)
     n_classes = len(classes)
     if verbose:
-        print(f"[run_cv] {name} | known windows={len(X)} classes={n_classes} folds={n_splits}")
+        print(f"[run_cv] {name} | windows={len(X)} classes={n_classes} folds={n_splits}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if verbose:

@@ -1,0 +1,32 @@
+name: G05_resnet_big_120ep
+phase: G
+notes: ResNet [128,256,512] + 120ep + early stop
+n_splits: 3
+epochs: 120
+batch_size: 128
+seed: 42
+amp: true
+model:
+  type: resnet
+  filters:
+  - 128
+  - 256
+  - 512
+  dropout: 0.3
+optim:
+  type: adam
+  lr: 0.0001
+  weight_decay: 0.0001
+sched:
+  type: onecycle
+  max_lr: 0.003
+loss:
+  type: ce
+  class_weight: invfreq
+augment:
+  enabled: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1
+early_stopping_patience: 20

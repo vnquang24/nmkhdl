@@ -1,0 +1,32 @@
+name: D05_focal_g2_sqrt
+phase: D
+notes: "Focal \u03B3=2 + sqrtinvfreq"
+n_splits: 3
+epochs: 80
+batch_size: 128
+seed: 42
+amp: true
+model:
+  type: resnet
+  filters:
+  - 64
+  - 128
+  - 256
+  dropout: 0.3
+optim:
+  type: adam
+  lr: 0.0001
+  weight_decay: 0.0001
+sched:
+  type: onecycle
+  max_lr: 0.003
+loss:
+  type: focal
+  class_weight: sqrtinvfreq
+  gamma: 2.0
+augment:
+  enabled: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1

@@ -24,10 +24,8 @@ WINDOW_STRIDE = WINDOW_SIZE // 2     # 64 (overlap 50%)
 INERTIAL_CHANNELS = ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"]
 N_CHANNELS = len(INERTIAL_CHANNELS)
 
-# User split
+# Closed-set: dùng toàn bộ 15 người dùng trong dữ liệu.
 ACTIVITIES = ["sitting", "standing", "walking"]
-UNKNOWN_USERS = ["userD", "userE", "userI"]  # giữ làm open-set
-# 12 known user còn lại sẽ tự suy ra trong code.
 
 # Filter
 LOWPASS_CUTOFF = 20.0  # Hz

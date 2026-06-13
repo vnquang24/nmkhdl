@@ -1,0 +1,28 @@
+{
+  "name": "smoke_1ep",
+  "phase": "SMOKE",
+  "notes": "1 epoch GPU smoke test",
+  "n_splits": 3,
+  "epochs": 1,
+  "batch_size": 128,
+  "seed": 42,
+  "amp": true,
+  "model": {
+    "type": "cnn"
+  },
+  "optim": {
+    "type": "adam",
+    "lr": 0.001,
+    "weight_decay": 0.0001
+  },
+  "sched": {
+    "type": "none"
+  },
+  "loss": {
+    "type": "ce",
+    "class_weight": "invfreq"
+  },
+  "augment": {
+    "enabled": true
+  }
+}

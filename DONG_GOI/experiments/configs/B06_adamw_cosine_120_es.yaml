@@ -1,0 +1,22 @@
+name: B06_adamw_cosine_120_es
+phase: B
+notes: "AdamW cosine 120ep, early-stop p=20"
+n_splits: 3
+epochs: 120
+batch_size: 128
+seed: 42
+amp: true
+early_stopping_patience: 20
+model: {type: cnn, filters: [32,64,128], kernels: [7,5,3], dropout: 0.3}
+optim: {type: adamw, lr: 1.0e-3, weight_decay: 5.0e-4}
+sched: {type: cosine, t_max: 120}
+loss: {type: ce, class_weight: invfreq}
+augment:
+  enabled: true
+  use_jitter: true
+  use_scale: true
+  use_rotation: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1

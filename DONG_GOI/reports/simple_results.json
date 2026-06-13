@@ -1,44 +1,49 @@
 {
-  "config": "experiments/configs/SIMPLE_CNN.yaml",
-  "method": "Simple baseline: CNN 1D + Random Forest",
+  "config": "experiments\\configs\\SIMPLE_CNN.yaml",
+  "method": "Simple baseline: CNN 1D + Random Forest + SVM (RBF)",
   "cnn": {
     "name": "SIMPLE_CNN",
     "fold_f1s": [
-      0.6933041571720661,
-      0.6771992408359234,
-      0.6938255366470258
+      0.6577626463395998,
+      0.5803750306939182,
+      0.6435875169648076
     ],
-    "mean_macroF1": 0.6881096448850051,
-    "std_macroF1": 0.007717756432404902,
-    "run_id": "20260524-094441_SIMPLE_SIMPLE_CNN"
-  },
-  "rf": {
-    "fold_f1s": [
-      0.787615474557076,
-      0.7581679216267837,
-      0.807732636664583
-    ],
-    "fold_accuracies": [
-      0.7976387738193869,
-      0.7840782968418929,
-      0.8223075408544989
-    ],
-    "mean_macroF1": 0.7845053442828142,
-    "std_macroF1": 0.020353868214448748,
-    "mean_accuracy": 0.8013415371719262
+    "mean_macroF1": 0.6272417313327753,
+    "std_macroF1": 0.03364123753943669,
+    "run_id": "20260613-110646_SIMPLE_SIMPLE_CNN"
   },
   "classes": [
     "userA",
-    "userB",
-    "userC",
-    "userF",
-    "userG",
-    "userH",
-    "userK",
-    "userL",
-    "userM",
-    "userN",
-    "userP",
-    "userQ"
-  ]
+    "userB"
+  ],
+  "rf": {
+    "fold_f1s": [
+      0.40029937629937634,
+      0.9221018539200357,
+      0.6958777805341934
+    ],
+    "fold_accuracies": [
+      0.6072607260726073,
+      0.96415770609319,
+      0.6996805111821086
+    ],
+    "mean_macroF1": 0.6727596702512019,
+    "std_macroF1": 0.21365126051591193,
+    "mean_accuracy": 0.7570329811159686
+  },
+  "svm": {
+    "fold_f1s": [
+      0.363679085955972,
+      0.8212948364209697,
+      0.7119985277880014
+    ],
+    "fold_accuracies": [
+      0.528052805280528,
+      0.9068100358422939,
+      0.744408945686901
+    ],
+    "mean_macroF1": 0.6323241500549811,
+    "std_macroF1": 0.1951308084657892,
+    "mean_accuracy": 0.7264239289365744
+  }
 }

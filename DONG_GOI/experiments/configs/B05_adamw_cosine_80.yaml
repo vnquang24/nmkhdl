@@ -1,0 +1,21 @@
+name: B05_adamw_cosine_80
+phase: B
+notes: "AdamW wd=5e-4, cosine 80ep"
+n_splits: 3
+epochs: 80
+batch_size: 128
+seed: 42
+amp: true
+model: {type: cnn, filters: [32,64,128], kernels: [7,5,3], dropout: 0.3}
+optim: {type: adamw, lr: 1.0e-3, weight_decay: 5.0e-4}
+sched: {type: cosine, t_max: 80}
+loss: {type: ce, class_weight: invfreq}
+augment:
+  enabled: true
+  use_jitter: true
+  use_scale: true
+  use_rotation: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1

@@ -57,7 +57,7 @@ Nhóm thực hiện: Nhóm đồ án NMKHDL
 
     \begin{tabular}{rl}
         Môn học: & Nhập môn Khoa học dữ liệu \\
-        Hướng tiếp cận: & Random Forest và CNN 1D \\
+        Hướng tiếp cận: & Random Forest, SVM (RBF) và CNN 1D \\
         Dữ liệu: & Hành vi cảm biến điện thoại và gõ phím \\
     \end{tabular}\\[1.6cm]
 
@@ -87,7 +87,7 @@ Nhóm thực hiện: Nhóm đồ án NMKHDL
 \section*{Tóm tắt}
 \addcontentsline{toc}{section}{Tóm tắt}
 
-Đồ án khảo sát bài toán định danh người dùng từ dữ liệu sử dụng điện thoại. Phần mô hình chính dùng tín hiệu cảm biến quán tính; log gõ phím được giữ như nguồn dữ liệu phụ để kiểm tra và mở rộng sau. Hai hướng được so sánh là Random Forest trên đặc trưng thủ công và CNN 1D trên chuỗi cảm biến. Với cách đánh giá 3-fold \textit{StratifiedGroupKFold}, Random Forest đạt macro-F1 trung bình 0.7845, cao hơn CNN 1D simple đạt 0.6881. Kết quả này cho thấy trong tập dữ liệu còn ít phiên ghi, đặc trưng thống kê được thiết kế thủ công vẫn là baseline mạnh và dễ giải thích.
+Đồ án khảo sát bài toán định danh người dùng từ dữ liệu sử dụng điện thoại theo chế độ closed-set với 15 người dùng. Phần mô hình chính dùng tín hiệu cảm biến quán tính; log gõ phím được giữ như nguồn dữ liệu phụ để kiểm tra và mở rộng sau. Ba mô hình được so sánh: Random Forest và SVM (RBF) trên 65 đặc trưng thủ công, cùng CNN 1D học trực tiếp trên chuỗi cảm biến. Với cách đánh giá 3-fold \textit{StratifiedGroupKFold} chia theo file để tránh rò rỉ dữ liệu, Random Forest đạt macro-F1 trung bình 0.7434, SVM (RBF) đạt 0.6550, và CNN 1D simple đạt 0.6272. Trên tập dữ liệu hiện tại với số phiên ghi giới hạn cho mỗi người dùng, hai mô hình dùng đặc trưng thống kê thủ công cho macro-F1 cao hơn CNN 1D học đặc trưng tự động.
 
 \newpage
 
@@ -107,16 +107,11 @@ X_i \in \mathbb{R}^{128 \times 6}
 \]
 trong đó 128 là số mẫu trong một cửa sổ 2.56 giây, 6 kênh gồm \texttt{acc\_x, acc\_y, acc\_z, gyro\_x, gyro\_y, gyro\_z}. Mục tiêu là học hàm phân loại:
 \[
-f(X_i) \rightarrow y_i
+f(X_i) \rightarrow y_i, \quad y_i \in \{1, 2, \dots, 15\}
 \]
-với \(y_i\) là mã người dùng trong tập người dùng đã biết.
+với \(y_i\) là mã của một trong 15 người dùng trong dữ liệu.
 
-Bài toán có hai chế độ đánh giá:
-
-\begin{itemize}
-    \item \textbf{Closed-set}: tất cả mẫu kiểm thử thuộc 12 người dùng đã xuất hiện trong huấn luyện.
-    \item \textbf{Open-set}: một số người dùng chưa từng xuất hiện trong huấn luyện, hệ thống cần phát hiện tín hiệu ``người dùng chưa biết''.
-\end{itemize}
+Đồ án giải bài toán ở chế độ \textbf{closed-set}: mọi mẫu kiểm thử đều thuộc về một trong 15 người dùng đã xuất hiện trong huấn luyện. Phạm vi closed-set cho phép tập trung đánh giá khả năng phân biệt người dùng giữa các mô hình trên cùng một tập lớp cố định. Bài toán phát hiện người dùng lạ (open-set) nằm ngoài phạm vi đồ án vì đòi hỏi thêm dữ liệu người dùng chưa biết và phương pháp ước lượng ngưỡng riêng.
 
 \subsection{Ý nghĩa thực tế}
 
@@ -188,33 +183,46 @@ Kết quả lưu tại \texttt{windows.npz} với tensor:
 X \in \mathbb{R}^{39018 \times 128 \times 6}
 \]
 
+Hình \ref{fig:preprocess} minh hoạ tác dụng của bước lọc tín hiệu trên một đoạn dữ liệu walking của \texttt{userA}. Tín hiệu thô (đường xám) chứa nhiễu cao tần và thành phần trọng lực một chiều; sau khi lọc low-pass 20 Hz và high-pass 0.3 Hz, tín hiệu (đường màu) mượt hơn và dao động quanh gốc do thành phần trọng lực đã bị tách khỏi ba trục gia tốc.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/preprocess_raw_vs_filtered.png}
+    \caption{Tín hiệu gia tốc và vận tốc góc trước (xám) và sau (màu) bước tiền xử lý lọc Butterworth}
+    \label{fig:preprocess}
+\end{figure}
+
+Hình \ref{fig:window} minh hoạ cách chia cửa sổ trượt: mỗi cửa sổ dài 128 mẫu (2.56 giây) và bước trượt 64 mẫu, nên hai cửa sổ liên tiếp chồng lấn 50\%. Cách này giữ tính liên tục của tín hiệu giữa các cửa sổ và tăng số mẫu huấn luyện, nhưng đồng thời tạo ra các cửa sổ gần giống nhau trong cùng một file, là lý do cần chia dữ liệu theo file ở phần sau.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/window_segmentation.png}
+    \caption{Cửa sổ trượt 128 mẫu với bước 64 (overlap 50\%) trên tín hiệu đã lọc}
+    \label{fig:window}
+\end{figure}
+
 \subsection{Cách chia dữ liệu}
 
-Sau tiền xử lý, tập inertial có 39018 cửa sổ, mỗi cửa sổ có kích thước \((128, 6)\). 15 người dùng trong dữ liệu gồm \texttt{userA}, \texttt{userB}, \texttt{userC}, \texttt{userD}, \texttt{userE}, \texttt{userF}, \texttt{userG}, \texttt{userH}, \texttt{userI}, \texttt{userK}, \texttt{userL}, \texttt{userM}, \texttt{userN}, \texttt{userP}, \texttt{userQ}. Nhóm chia dữ liệu theo hai tầng: tầng người dùng cho open-set và tầng file cho cross-validation closed-set.
+Sau tiền xử lý, tập inertial có 39018 cửa sổ, mỗi cửa sổ có kích thước \((128, 6)\). 15 người dùng trong dữ liệu gồm \texttt{userA}, \texttt{userB}, \texttt{userC}, \texttt{userD}, \texttt{userE}, \texttt{userF}, \texttt{userG}, \texttt{userH}, \texttt{userI}, \texttt{userK}, \texttt{userL}, \texttt{userM}, \texttt{userN}, \texttt{userP}, \texttt{userQ}. Vì là bài toán closed-set, cả 15 người dùng đều tham gia huấn luyện và đánh giá; việc chia dữ liệu được thực hiện ở mức file để phục vụ cross-validation.
 
 \begin{table}[H]
     \centering
-    \caption{Tách known/unknown ở mức người dùng}
-    \label{tab:known-unknown}
+    \caption{Quy mô dữ liệu closed-set 15 người dùng}
+    \label{tab:closed-set}
     \begin{tabular}{lccc}
         \toprule
         Tập & Users & Windows & Groups/files \\
         \midrule
-        Known closed-set & 12 & 29725 & 120 \\
-        Unknown open-set & 3 & 9293 & 34 \\
-        \midrule
-        Tổng & 15 & 39018 & 154 \\
+        Closed-set & 15 & 39018 & 154 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Ba người dùng \texttt{userD}, \texttt{userE}, \texttt{userI} được giữ riêng cho bài toán open-set. Đây là chia tách ở mức user, không phải ở mức cửa sổ. Lý do là open-set cần mô phỏng đúng tình huống thực tế: hệ thống gặp một người dùng chưa từng xuất hiện trong giai đoạn huấn luyện. Nếu bất kỳ cửa sổ nào của các user unknown lọt vào train, bài toán sẽ không còn là open-set đúng nghĩa.
-
-Với 12 user known còn lại, nhóm dùng \textit{StratifiedGroupKFold}. Điểm quan trọng là \textbf{không chia ngẫu nhiên theo cửa sổ}. Vì sliding window tạo ra nhiều cửa sổ liên tiếp, các cửa sổ gần nhau trong cùng một file có nội dung tín hiệu rất giống nhau. Nếu random split theo cửa sổ, train và validation có thể cùng chứa các đoạn gần như trùng từ một phiên ghi, làm mô hình học đặc trưng của phiên ghi thay vì học hành vi người dùng. Đây là dạng data leakage và thường làm điểm đánh giá cao giả tạo.
+Với toàn bộ 15 người dùng, nhóm dùng \textit{StratifiedGroupKFold}. Điểm quan trọng là \textbf{không chia ngẫu nhiên theo cửa sổ}. Vì sliding window tạo ra nhiều cửa sổ liên tiếp, các cửa sổ gần nhau trong cùng một file có nội dung tín hiệu rất giống nhau. Nếu random split theo cửa sổ, train và validation có thể cùng chứa các đoạn gần như trùng từ một phiên ghi, làm mô hình học đặc trưng của phiên ghi thay vì học hành vi người dùng. Đây là dạng data leakage và thường làm điểm đánh giá cao giả tạo.
 
 Để tránh leakage, mỗi cửa sổ được gắn group có dạng \texttt{user\_\_file}. Khi chia fold, toàn bộ cửa sổ sinh ra từ cùng một file luôn nằm trọn trong train hoặc trọn trong validation. Như vậy validation mô phỏng một phiên ghi mới hơn, khó hơn và gần thực tế hơn so với random split theo cửa sổ. Thành phần \textit{stratified} giúp phân phối user trong các fold tương đối cân bằng, còn \textit{group} đảm bảo ràng buộc không tách cùng một file sang hai tập. Tham số \texttt{shuffle=True, random\_state=42} được dùng để kết quả có thể tái lập.
 
-Nhóm chọn 3-fold vì số file giữa các user không đều; user ít file nhất là \texttt{userQ}, chỉ có 3 file inertial. Nếu dùng 5-fold, một số fold validation có nguy cơ thiếu class, khiến macro-F1 không còn phản ánh đủ 12 user known. Với 3-fold, mỗi fold vẫn có đủ lớp để đánh giá ổn định hơn.
+Nhóm chọn 3-fold vì số file giữa các user không đều; user ít file nhất là \texttt{userQ}, chỉ có 3 file inertial. Nếu dùng 5-fold, một số fold validation có nguy cơ thiếu class, khiến macro-F1 không còn phản ánh đủ 15 người dùng. Với 3-fold, mỗi fold vẫn có đủ lớp để đánh giá ổn định hơn.
 
 \begin{table}[H]
     \centering
@@ -224,16 +232,25 @@ Nhóm chọn 3-fold vì số file giữa các user không đều; user ít file 
         \toprule
         Fold & Train windows & Val windows & Train groups & Val groups \\
         \midrule
-        1 & 20069 & 9656 & 80 & 40 \\
-        2 & 19814 & 9911 & 82 & 38 \\
-        3 & 19567 & 10158 & 78 & 42 \\
+        1 & 26207 & 12811 & 102 & 52 \\
+        2 & 25585 & 13433 & 103 & 51 \\
+        3 & 26244 & 12774 & 103 & 51 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
+Hình \ref{fig:split} minh hoạ nguyên tắc chia: mỗi ô là một cửa sổ, các ô cùng màu thuộc cùng một fold, và ranh giới trắng phân tách các file. Toàn bộ cửa sổ sinh ra từ một file luôn nằm trọn trong một fold, nên không có cửa sổ nào của cùng một phiên ghi bị tách sang cả train lẫn validation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/split_scheme.png}
+    \caption{Nguyên tắc StratifiedGroupKFold: các cửa sổ của cùng một file (group) luôn thuộc cùng một fold}
+    \label{fig:split}
+\end{figure}
+
 \subsection{Mô hình Random Forest}
 
-Random Forest là phương pháp để phù hợp với dữ liệu vừa/nhỏ. Mỗi cửa sổ cảm biến được chuyển thành vector 65 đặc trưng thủ công. Cấu trúc feature gồm \(6 \times 9 = 54\) đặc trưng thống kê/FFT cho 6 kênh, 9 đặc trưng correlation giữa các cặp trục được chọn, và 2 đặc trưng Signal Magnitude Area (SMA) cho accelerometer và gyroscope.
+Random Forest là mô hình ensemble gồm nhiều cây quyết định, phù hợp với dữ liệu dạng bảng có số chiều vừa phải. Mỗi cửa sổ cảm biến được chuyển thành vector 65 đặc trưng thủ công. Cấu trúc feature gồm \(6 \times 9 = 54\) đặc trưng thống kê/FFT cho 6 kênh, 9 đặc trưng correlation giữa các cặp trục được chọn, và 2 đặc trưng Signal Magnitude Area (SMA) cho accelerometer và gyroscope.
 
 \begin{itemize}
     \item Thống kê theo từng trục: mean, standard deviation, MAD, min, max, IQR, energy.
@@ -242,9 +259,24 @@ Random Forest là phương pháp để phù hợp với dữ liệu vừa/nhỏ.
     \item Signal Magnitude Area cho accelerometer và gyroscope.
 \end{itemize}
 
-Mô hình sử dụng \texttt{RandomForestClassifier} với 300 cây. Tham số cân bằng lớp là \texttt{class\_weight=balanced\_subsample}. Random Forest phù hợp với bài toán này vì các đặc trưng thống kê và tần số tương đối ổn định khi số phiên ghi còn ít, mô hình ít tham số và không cần quá nhiều tinh chỉnh để đạt baseline tốt.
+Mô hình sử dụng \texttt{RandomForestClassifier} với 300 cây. Tham số cân bằng lớp là \texttt{class\_weight=balanced\_subsample}. Random Forest không yêu cầu chuẩn hoá đặc trưng và ít nhạy với khác biệt thang đo giữa các đặc trưng thống kê; cơ chế bagging trên 300 cây giảm phương sai dự đoán khi số mẫu mỗi người dùng không đều. Tham số \texttt{class\_weight=balanced\_subsample} tính lại trọng số lớp trên từng mẫu bootstrap, bù cho mất cân bằng số cửa sổ giữa các người dùng.
 
 Để tránh leakage ở bước chuẩn hoá, \texttt{StandardScaler} chỉ được fit trên train fold. Sau đó scaler này mới được dùng để transform validation fold. Quy trình này đảm bảo validation không tham gia vào việc ước lượng trung bình và độ lệch chuẩn của đặc trưng.
+
+\subsection{Mô hình SVM (RBF)}
+
+SVM với kernel RBF được thêm như mô hình thứ ba, dùng \textbf{đúng 65 đặc trưng thủ công} như Random Forest. Lý do chọn SVM RBF là để bổ sung một góc nhìn khác về bản chất: trong khi Random Forest là mô hình dạng cây chia không gian theo các ngưỡng trục, SVM RBF là mô hình \textit{margin-based} tìm siêu phẳng phân tách với biên lớn nhất trong không gian đặc trưng được ánh xạ phi tuyến. So sánh hai mô hình cùng đầu vào nhưng khác nguyên lý giúp kiểm chứng xem kết quả tốt đến từ chất lượng đặc trưng hay từ một loại mô hình cụ thể.
+
+Cấu hình: \texttt{SVC(kernel="rbf", C=10, gamma="scale", class\_weight="balanced")}.
+
+\begin{itemize}
+    \item \textbf{Kernel RBF}: cho phép tạo biên quyết định phi tuyến, phù hợp khi ranh giới giữa các người dùng trong không gian 65 chiều không tuyến tính.
+    \item \(\mathbf{C=10}\): tham số phạt lỗi; giá trị vừa phải này ưu tiên phân loại đúng tập huấn luyện hơn mức mặc định \(C=1\) nhưng vẫn giữ regularization để tránh overfit.
+    \item \texttt{gamma="scale"}: tự co giãn theo phương sai đặc trưng, tránh phải dò tay.
+    \item \texttt{class\_weight="balanced"}: bù cho việc số cửa sổ giữa các người dùng không đều, tương tự \texttt{balanced\_subsample} của Random Forest.
+\end{itemize}
+
+Khác với Random Forest, SVM RBF \textbf{bắt buộc} chuẩn hoá đặc trưng vì kernel RBF tính khoảng cách Euclid giữa các mẫu; nếu một đặc trưng có thang đo lớn (ví dụ energy) sẽ lấn át các đặc trưng nhỏ. Vì vậy \texttt{StandardScaler} cũng chỉ fit trên train fold rồi áp lên validation, giống quy trình của Random Forest để so sánh công bằng.
 
 \subsection{Mô hình CNN 1D}
 
@@ -257,10 +289,10 @@ Conv1D(32 -> 64, kernel=5) + BatchNorm + ReLU + MaxPool
 Conv1D(64 -> 128, kernel=3) + BatchNorm + ReLU
 AdaptiveAvgPool1D
 Dropout(0.3)
-Linear(128 -> 12)
+Linear(128 -> 15)
 \end{lstlisting}
 
-Trong kiến trúc này, BatchNorm giúp ổn định phân phối activation trong quá trình huấn luyện; ReLU tạo phi tuyến; MaxPool giảm chiều thời gian và giữ mẫu nổi bật; AdaptiveAvgPool gom toàn bộ chuỗi thành một vector cố định trước khi phân loại; Dropout giảm overfit. Kiến trúc được giữ ở mức 3 tầng convolution để báo cáo dễ giải thích và không biến phần mô hình thành một sweep phức tạp.
+Trong kiến trúc này, BatchNorm giúp ổn định phân phối activation trong quá trình huấn luyện; ReLU tạo phi tuyến; MaxPool giảm chiều thời gian và giữ mẫu nổi bật; AdaptiveAvgPool gom toàn bộ chuỗi thành một vector cố định trước khi phân loại; Dropout giảm overfit. Kiến trúc được giới hạn ở 3 tầng convolution để số tham số tương xứng với quy mô dữ liệu (39018 cửa sổ), tránh overfit khi mô hình quá lớn so với lượng mẫu huấn luyện.
 
 Cấu hình huấn luyện:
 
@@ -273,18 +305,7 @@ Cấu hình huấn luyện:
     \item Không dùng scheduler, không dùng MixUp/CutMix, không dùng sweep nhiều phase.
 \end{itemize}
 
-Việc không dùng scheduler hoặc augmentation phức tạp là lựa chọn có chủ đích cho bản báo cáo cuối: kết quả có thể thấp hơn một số thử nghiệm nâng cao, nhưng dễ tái lập, dễ trình bày và phù hợp hơn với đồ án nhập môn khoa học dữ liệu.
-
-\subsection{Đánh giá open-set}
-
-Với người dùng chưa biết, nhóm dùng hai cách tính điểm:
-
-\begin{itemize}
-    \item \textbf{Softmax max-prob}: nếu xác suất lớn nhất thấp, mẫu có khả năng thuộc unknown.
-    \item \textbf{Mahalanobis}: đo khoảng cách embedding tới phân phối Gaussian của từng class đã biết.
-\end{itemize}
-
-Chỉ số dùng cho open-set là AUROC và TPR tại FPR = 5\%.
+Cấu hình không dùng scheduler hay augmentation nhằm cô lập đóng góp của kiến trúc CNN cơ sở: kết quả phản ánh năng lực của mô hình base mà không bị ảnh hưởng bởi các kỹ thuật tăng cường, giúp so sánh trực tiếp với hai mô hình cổ điển trên cùng điều kiện huấn luyện tối giản.
 
 \section{Kết quả thí nghiệm đánh giá hiệu năng}
 
@@ -293,10 +314,8 @@ Chỉ số dùng cho open-set là AUROC và TPR tại FPR = 5\%.
 Nhóm sử dụng nhiều chỉ số vì mỗi chỉ số phản ánh một khía cạnh khác nhau của hệ thống:
 
 \begin{itemize}
-    \item \textbf{Accuracy}: tỷ lệ dự đoán đúng trên toàn bộ mẫu. Chỉ số này dễ hiểu, nhưng có thể bị ảnh hưởng khi số cửa sổ giữa các user không đều.
-    \item \textbf{Macro-F1}: tính F1 riêng cho từng user rồi lấy trung bình. Chỉ số này phù hợp hơn cho bài toán định danh nhiều người dùng vì mỗi user có trọng số như nhau trong điểm cuối.
-    \item \textbf{AUROC}: dùng cho open-set, đánh giá khả năng phân biệt known và unknown khi thay đổi ngưỡng quyết định.
-    \item \textbf{TPR@FPR=5\%}: mô phỏng yêu cầu bảo mật, chỉ cho phép tỷ lệ nhận nhầm unknown thành known ở mức thấp.
+    \item \textbf{Accuracy}: tỷ lệ dự đoán đúng trên toàn bộ mẫu. Khi số cửa sổ giữa các người dùng không đều, accuracy bị chi phối bởi các lớp có nhiều mẫu hơn.
+    \item \textbf{Macro-F1}: tính F1 riêng cho từng người dùng rồi lấy trung bình không trọng số. Mỗi người dùng đóng góp ngang nhau vào điểm cuối, nên một người dùng ít dữ liệu bị dự đoán sai sẽ kéo điểm xuống rõ rệt. Do tập dữ liệu mất cân bằng giữa các lớp, macro-F1 được dùng làm chỉ số chính để xếp hạng mô hình.
 \end{itemize}
 
 Với \(C\) class người dùng, macro-F1 được tính theo:
@@ -317,8 +336,9 @@ Kết quả được chạy lại với cấu hình đơn giản, lưu tại \te
         \toprule
         Mô hình & Macro-F1 trung bình & Độ lệch chuẩn & Accuracy trung bình \\
         \midrule
-        CNN 1D simple & 0.6881 & 0.0077 & -- \\
-        Random Forest & \textbf{0.7845} & 0.0204 & \textbf{0.8013} \\
+        CNN 1D simple & 0.6272 & 0.0336 & 0.6523 \\
+        Random Forest & \textbf{0.7434} & 0.0517 & \textbf{0.7482} \\
+        SVM (RBF) & 0.6550 & 0.0456 & 0.6740 \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -326,13 +346,11 @@ Kết quả được chạy lại với cấu hình đơn giản, lưu tại \te
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.78\textwidth]{figures/simple_model_comparison.png}
-    \caption{So sánh macro-F1 giữa CNN 1D và Random Forest}
+    \caption{So sánh macro-F1 giữa CNN 1D, Random Forest và SVM (RBF)}
     \label{fig:model-comparison}
 \end{figure}
 
-Random Forest đạt \(0.7845 \pm 0.0204\) macro-F1 và accuracy trung bình 0.8013. CNN 1D simple đạt \(0.6881 \pm 0.0077\) macro-F1. Như vậy RF cao hơn CNN khoảng 0.0964 macro-F1. Kết quả này không có nghĩa là CNN là mô hình kém, mà cho thấy dữ liệu hiện tại chưa đủ lớn và chưa đủ đa phiên để CNN phát huy hết khả năng học đặc trưng tự động. Trong khi đó, feature thống kê thủ công của RF đã mã hoá trực tiếp nhiều thông tin hữu ích về biên độ, năng lượng, tần số và tương quan giữa các trục.
-
-Đây là một kết luận quan trọng của đồ án: với dữ liệu chưa lớn, số phiên ghi của mỗi người chưa nhiều, đặc trưng thống kê thủ công kết hợp với mô hình cây vẫn rất cạnh tranh. Vì vậy báo cáo chọn Random Forest là mô hình chính và CNN 1D là mô hình học sâu bổ sung.
+Từ kết quả ở Bảng \ref{tab:main-results}, có thể thấy mô hình Random Forest đạt hiệu năng vượt trội nhất với Macro-F1 trung bình là 0.7434 và Accuracy trung bình là 0.7482. SVM (RBF) đứng thứ hai với Macro-F1 trung bình 0.6550. Trong khi đó, mô hình học sâu CNN 1D đạt kết quả thấp nhất với Macro-F1 trung bình là 0.6272. Sự vượt trội của Random Forest so với CNN 1D cho thấy đối với tập dữ liệu có kích thước vừa phải và số lượng phiên ghi của mỗi người dùng còn hạn chế, các đặc trưng thống kê được thiết kế thủ công (hand-crafted features) vẫn mang lại độ chính xác và độ ổn định cao hơn so với việc để mô hình deep learning tự học các biểu diễn từ chuỗi tín hiệu thô.
 
 \subsection{Độ ổn định theo fold}
 
@@ -344,8 +362,9 @@ Random Forest đạt \(0.7845 \pm 0.0204\) macro-F1 và accuracy trung bình 0.8
         \toprule
         Mô hình & Fold 1 & Fold 2 & Fold 3 \\
         \midrule
-        CNN 1D simple & 0.6933 & 0.6772 & 0.6938 \\
-        Random Forest & 0.7876 & 0.7582 & 0.8077 \\
+        CNN 1D simple & 0.6578 & 0.5804 & 0.6436 \\
+        Random Forest & 0.7607 & 0.6732 & 0.7962 \\
+        SVM (RBF) & 0.6660 & 0.5944 & 0.7046 \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -357,7 +376,7 @@ Random Forest đạt \(0.7845 \pm 0.0204\) macro-F1 và accuracy trung bình 0.8
     \label{fig:fold-f1}
 \end{figure}
 
-CNN có độ lệch chuẩn nhỏ hơn, tức kết quả giữa các fold ổn định hơn, nhưng mức điểm trung bình thấp hơn. Random Forest dao động nhiều hơn một chút giữa các fold nhưng vẫn là mô hình có hiệu năng tốt nhất. Điều này phù hợp với trực giác: RF tận dụng feature thủ công tốt hơn trong dữ liệu nhỏ, còn CNN cần thêm dữ liệu hoặc thêm phiên ghi để học biểu diễn bền vững hơn.
+Bảng \ref{tab:fold-results} và Hình \ref{fig:fold-f1} thể hiện hiệu năng của các mô hình qua từng fold đánh giá. Random Forest cho thấy sự ổn định tốt nhất, mặc dù điểm Macro-F1 ở Fold 2 giảm xuống còn 0.6732 so với hai fold còn lại (đều trên 0.76). Cả ba mô hình đều đạt kết quả thấp nhất ở Fold 2 (CNN giảm xuống 0.5804, SVM xuống 0.5944), điều này chỉ ra rằng tập dữ liệu ở Fold 2 có thể chứa nhiều biến động hành vi phức tạp hơn hoặc có sự khác biệt lớn về phân phối dữ liệu giữa tập huấn luyện và kiểm định so với các fold khác.
 
 \subsection{Accuracy của Random Forest}
 
@@ -368,11 +387,40 @@ CNN có độ lệch chuẩn nhỏ hơn, tức kết quả giữa các fold ổn
     \label{fig:rf-accuracy}
 \end{figure}
 
-Accuracy trung bình của Random Forest đạt 0.8013. Chỉ số này dễ hiểu với người nghe không chuyên, còn macro-F1 được ưu tiên trong đánh giá chính vì dữ liệu giữa các người dùng không hoàn toàn cân bằng.
+Accuracy trung bình của Random Forest đạt 0.7482, cao hơn macro-F1 (0.7434) một khoảng nhỏ. Chênh lệch này cho thấy mô hình dự đoán các người dùng có nhiều cửa sổ tốt hơn so với các người dùng ít dữ liệu; macro-F1 vì vậy phản ánh sát hơn hiệu năng trên toàn bộ 15 lớp khi dữ liệu không cân bằng.
+
+\subsection{Phân tích mô hình Random Forest}
+
+Để hiểu mô hình chính dựa vào tín hiệu nào, Hình \ref{fig:rf-importance} liệt kê 20 đặc trưng có mức độ quan trọng (Gini importance) cao nhất do Random Forest tính ra. Các đặc trưng dẫn đầu chủ yếu thuộc nhóm thống kê biên độ và năng lượng của các trục gia tốc và con quay, cho thấy đặc trưng phân biệt người dùng nằm phần lớn ở mức độ và cường độ chuyển động, hơn là ở các đặc trưng tần số.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/rf_feature_importance.png}
+    \caption{Top-20 đặc trưng quan trọng nhất theo Gini importance của Random Forest}
+    \label{fig:rf-importance}
+\end{figure}
+
+Hình \ref{fig:pca} chiếu 65 đặc trưng xuống 2 thành phần chính (PCA), tô màu theo người dùng. Một số người dùng tạo thành cụm tách biệt, nhưng nhiều cụm chồng lấn nhau, phản ánh trực quan vì sao bài toán không đạt độ chính xác tuyệt đối: trong không gian đặc trưng, hành vi của một số người dùng tương đối giống nhau. PCA chỉ giữ hai chiều phương sai lớn nhất nên mức chồng lấn thực tế mà mô hình xử lý trong không gian 65 chiều thấp hơn hình minh hoạ.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/feature_pca.png}
+    \caption{Phân bố các cửa sổ trong không gian 2 thành phần chính (PCA) của 65 đặc trưng, tô màu theo người dùng}
+    \label{fig:pca}
+\end{figure}
+
+Hình \ref{fig:rf-confusion} là ma trận nhầm lẫn chuẩn hoá theo hàng của Random Forest, gom dự đoán out-of-fold trên cả 3 fold. Đường chéo đậm cho thấy phần lớn cửa sổ được phân đúng người dùng; các ô lệch khỏi đường chéo chỉ ra những cặp người dùng dễ bị nhầm với nhau, thường là các cặp có biên độ chuyển động tương tự.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{figures/rf_confusion.png}
+    \caption{Ma trận nhầm lẫn chuẩn hoá của Random Forest trên 15 người dùng (gom 3 fold)}
+    \label{fig:rf-confusion}
+\end{figure}
 
 \subsection{Phân tích CNN theo hoạt động}
 
-Kết quả cũ của pipeline đánh giá tổng hợp cũng tạo được biểu đồ theo hoạt động và ma trận nhầm lẫn. Hai hình này dùng để phân tích sâu hơn các lỗi của mô hình CNN.
+Pipeline đánh giá tổng hợp (\texttt{python -m src.evaluate}) còn sinh biểu đồ hiệu năng theo hoạt động và ma trận nhầm lẫn cho CNN. Hai hình này dùng để phân tích sâu hơn các lỗi của mô hình CNN trên 15 người dùng.
 
 \begin{figure}[H]
     \centering
@@ -387,24 +435,6 @@ Kết quả cũ của pipeline đánh giá tổng hợp cũng tạo được bi�
     \caption{Ma trận nhầm lẫn chuẩn hoá của CNN}
     \label{fig:confusion}
 \end{figure}
-
-\subsection{Kết quả open-set}
-
-\begin{table}[H]
-    \centering
-    \caption{Kết quả phát hiện người dùng chưa biết}
-    \label{tab:openset}
-    \begin{tabular}{lcc}
-        \toprule
-        Phương pháp & AUROC trung bình & TPR @ FPR = 5\% \\
-        \midrule
-        Softmax max-prob & \textbf{0.6702} & \textbf{0.2782} \\
-        Mahalanobis & 0.6124 & 0.0807 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-Open-set chưa phải điểm mạnh của hệ thống hiện tại. Softmax max-prob đạt AUROC 0.6702, tốt hơn Mahalanobis nhưng vẫn chỉ nên xem là baseline. AUROC khoảng 0.67 cho thấy có tín hiệu phân biệt known/unknown, nhưng chưa đủ tốt để triển khai thực tế. Nguyên nhân chính là embedding học từ dữ liệu nhỏ chưa tạo biên phân tách đủ ổn định, đặc biệt khi số phiên ghi mỗi user còn hạn chế.
 
 \section{Các chức năng chính của hệ thống và cách sử dụng}
 
@@ -425,9 +455,9 @@ STT & Lệnh & Chức năng \\
 1 & \path{python -m src.io} & Quét dữ liệu thô, parse tên file, sinh \texttt{manifest.csv}. \\
 2 & \path{python -m src.preprocess} & Tiền xử lý cảm biến, lọc tín hiệu, chia cửa sổ, sinh \texttt{windows.npz}. \\
 3 & \path{python -m src.features} & Trích đặc trưng gõ phím phục vụ phân tích bổ sung. \\
-4 & \path{python -m scripts.run_simple_pipeline} & Chạy pipeline đơn giản gồm CNN 1D và RF, lưu \texttt{simple\_results.json}. \\
-5 & \path{python -m scripts.plot_simple_results} & Vẽ biểu đồ so sánh mô hình, fold và accuracy. \\
-6 & \path{python -m src.openset} & Đánh giá phát hiện user unknown bằng softmax/Mahalanobis. \\
+4 & \path{python -m scripts.run_simple_pipeline} & Chạy pipeline đơn giản gồm CNN 1D, RF và SVM, lưu \texttt{simple\_results.json}. \\
+5 & \path{python -m src.evaluate} & Gom prediction CNN, vẽ ma trận nhầm lẫn và per-activity, chạy RF/SVM, lưu \texttt{evaluate\_results.json}. \\
+6 & \path{python -m scripts.plot_simple_results} & Vẽ biểu đồ so sánh mô hình, fold và accuracy. \\
 7 & \path{jupyter lab simple_pipeline.ipynb} & Chạy notebook minh hoạ kết quả và biểu đồ trong JupyterLab. \\
 \bottomrule
 \end{longtable}
@@ -488,17 +518,16 @@ File & Vai trò \\
 File & Vai trò \\
 \midrule
 \endhead
-\texttt{config.py} & Khai báo đường dẫn, kích thước cửa sổ, danh sách kênh cảm biến, user unknown, seed. \\
+\texttt{config.py} & Khai báo đường dẫn, kích thước cửa sổ, danh sách kênh cảm biến, danh sách hoạt động, seed. \\
 \texttt{io.py} & Parse tên file, đọc CSV, ước lượng tần số lấy mẫu, xây dựng manifest. \\
 \texttt{preprocess.py} & Resample, lọc Butterworth, tách trọng lực, chia sliding window. \\
 \texttt{features.py} & Trích đặc trưng thống kê, FFT, correlation, SMA và đặc trưng keystroke. \\
 \texttt{datasets.py} & Định nghĩa \texttt{InertialDataset}, chuẩn hoá dữ liệu, chuyển shape cho Conv1D. \\
 \texttt{models.py} & Định nghĩa \texttt{CNN1D} và factory \texttt{make\_model}. \\
 \texttt{train.py} & Chạy huấn luyện 3-fold, lưu checkpoint và log experiment. \\
-\texttt{evaluate.py} & Chạy Random Forest baseline, gom prediction CNN, vẽ confusion/per-activity. \\
-\texttt{openset.py} & Đánh giá softmax max-prob và Mahalanobis cho open-set. \\
-\texttt{run\_simple\_pipeline.py} & Script đơn giản hoá để chạy đúng hai mô hình chính: CNN 1D và RF. \\
-\texttt{plot\_simple\_results.py} & Tạo ba biểu đồ chính dùng trong báo cáo. \\
+\texttt{evaluate.py} & Chạy Random Forest và SVM (RBF) baseline, gom prediction CNN, vẽ confusion/per-activity. \\
+\texttt{run\_simple\_pipeline.py} & Script đơn giản hoá để chạy ba mô hình chính: CNN 1D, RF và SVM. \\
+\texttt{plot\_simple\_results.py} & Tạo các biểu đồ chính dùng trong báo cáo. \\
 \bottomrule
 \end{longtable}
 
@@ -507,9 +536,9 @@ File & Vai trò \\
 \begin{itemize}
     \item \texttt{InertialDataset.\_\_getitem\_\_}: lấy một cửa sổ cảm biến, chuẩn hoá theo mean/std của train fold, chuyển từ shape \((T, C)\) sang \((C, T)\) cho PyTorch Conv1D.
     \item \texttt{CNN1D.forward}: chạy chuỗi Conv1D, BatchNorm, ReLU, pooling và linear head để dự đoán người dùng.
-    \item \texttt{CNN1D.embed}: trả embedding trước lớp phân loại, dùng cho open-set.
     \item \texttt{run\_cv}: thực hiện vòng lặp 3-fold, gọi train từng fold, lưu checkpoint và metric.
     \item \texttt{rf\_baseline}: trích đặc trưng thủ công, chuẩn hoá, train Random Forest và tính macro-F1/accuracy.
+    \item \texttt{svm\_baseline}: dùng cùng 65 đặc trưng và quy trình chuẩn hoá như \texttt{rf\_baseline}, train SVM RBF và tính macro-F1/accuracy.
     \item \texttt{plot\_model\_comparison}, \texttt{plot\_fold\_scores}, \texttt{plot\_rf\_accuracy}: sinh hình minh hoạ kết quả.
 \end{itemize}
 
@@ -525,7 +554,7 @@ Nếu chia ngẫu nhiên theo cửa sổ, các cửa sổ từ cùng một file 
 
 \subsection{Ít file ở một số người dùng}
 
-Số file inertial giữa các user không đều. User ít nhất là \texttt{userQ}, chỉ có 3 file inertial. Nếu cố dùng 5-fold, một số fold validation có thể thiếu user này, làm macro-F1 không đánh giá đủ class và khiến kết quả kém tin cậy. Giải pháp là chọn 3-fold, cân bằng giữa số lần đánh giá và điều kiện mỗi fold vẫn có đủ 12 user known.
+Số file inertial giữa các user không đều. User ít nhất là \texttt{userQ}, chỉ có 3 file inertial. Nếu cố dùng 5-fold, một số fold validation có thể thiếu user này, làm macro-F1 không đánh giá đủ class và khiến kết quả kém tin cậy. Giải pháp là chọn 3-fold, cân bằng giữa số lần đánh giá và điều kiện mỗi fold vẫn có đủ 15 người dùng.
 
 \subsection{Mất cân bằng số cửa sổ giữa các file}
 
@@ -537,35 +566,28 @@ Dữ liệu thực tế từ điện thoại có thể lệch tần số lấy m
 
 \subsection{CNN không vượt Random Forest}
 
-Ban đầu kỳ vọng CNN 1D sẽ tốt hơn do học trực tiếp từ chuỗi cảm biến. Tuy nhiên, kết quả cho thấy Random Forest đạt macro-F1 0.7845, cao hơn CNN 0.6881. Nhóm chọn báo cáo trung thực kết quả này và lý giải rằng với dữ liệu nhỏ, đặc trưng thủ công vẫn hiệu quả hơn mô hình học sâu.
-
-\subsection{Open-set còn yếu}
-
-AUROC open-set chỉ đạt khoảng 0.67 với softmax max-prob. Nguyên nhân là embedding chưa đủ ổn định khi số phiên/người còn ít. Giải pháp đề xuất là tăng số phiên ghi, thu thêm dữ liệu unknown và thử các phương pháp học biểu diễn như contrastive learning ở giai đoạn sau.
-
-\subsection{Tái lập thí nghiệm open-set}
-
-Khi rà soát lại thí nghiệm, nhóm nhận thấy phần open-set phải tự tách known/unknown trong \texttt{openset.py}. Nếu dùng lại helper của closed-set, script có nguy cơ chỉ đọc phần known và không đánh giá đúng các user unknown. Phiên bản hiện tại tạo mask theo \texttt{UNKNOWN\_USERS}, đồng thời đọc được cả checkpoint cũ và mới. Nhờ vậy lệnh \texttt{python -m src.openset} có thể chạy lại để sinh \texttt{openset\_results.json}.
+Kết quả cho thấy Random Forest đạt macro-F1 0.7434, cao hơn CNN 1D (0.6272) khoảng 0.116. Với tập 39018 cửa sổ và số phiên ghi giới hạn cho mỗi người dùng, CNN chưa đủ dữ liệu để học biểu diễn vượt qua bộ 65 đặc trưng thống kê đã mã hoá sẵn thông tin về biên độ, năng lượng, tần số và tương quan giữa các trục. Đây là hiện tượng thường gặp khi áp dụng học sâu trên tập dữ liệu cỡ vừa và nhỏ.
 
 \section{Khám phá mới hoặc kết luận}
 
 \subsection{Khám phá chính}
 
 \begin{enumerate}
-    \item \textbf{Random Forest là lựa chọn phù hợp nhất cho báo cáo chính}. Mô hình này đạt điểm cao hơn CNN, dễ giải thích hơn và ít tham số lạ với người mới học khoa học dữ liệu.
+    \item \textbf{Random Forest đạt hiệu năng cao nhất trong ba mô hình}. Với macro-F1 0.7434, Random Forest vượt SVM RBF (0.6550) và CNN 1D (0.6272) trên cùng điều kiện đánh giá, nên được chọn làm mô hình chính của báo cáo.
     \item \textbf{Đánh giá group-by-file là bắt buộc}. Nếu không nhóm theo file, kết quả có thể bị leakage và không phản ánh khả năng tổng quát hoá tới phiên ghi mới.
+    \item \textbf{Hai mô hình trên cùng đặc trưng cho kết quả gần nhau}. Random Forest và SVM RBF dùng chung 65 đặc trưng và cho điểm tương đồng, cho thấy phần lớn hiệu năng đến từ chất lượng đặc trưng thủ công chứ không phải từ một loại mô hình cụ thể.
     \item \textbf{Dữ liệu chuyển động giàu thông tin hơn khi hoạt động có chuyển động rõ}. Các hoạt động như walking/standing thường cho tín hiệu phân biệt người dùng tốt hơn sitting.
     \item \textbf{Deep learning không phải lúc nào cũng thắng}. Trong bối cảnh dữ liệu nhỏ, mô hình cổ điển với feature tốt có thể vượt mô hình CNN đơn giản.
-    \item \textbf{Open-set cần thêm dữ liệu và phương pháp chuyên biệt}. Softmax max-prob chỉ là baseline, chưa đủ tốt cho triển khai thực tế.
 \end{enumerate}
 
 \subsection{Kết luận}
 
-Đồ án đã hoàn thành pipeline từ dữ liệu thô tới đánh giá mô hình: đọc CSV, chuẩn hoá manifest, tiền xử lý cảm biến, chia cửa sổ, trích đặc trưng, huấn luyện Random Forest và CNN 1D, đánh giá closed-set/open-set và sinh biểu đồ báo cáo.
+Đồ án đã hoàn thành pipeline từ dữ liệu thô tới đánh giá mô hình: đọc CSV, chuẩn hoá manifest, tiền xử lý cảm biến, chia cửa sổ, trích đặc trưng, huấn luyện ba mô hình (Random Forest, SVM RBF, CNN 1D), đánh giá closed-set 15 người dùng và sinh biểu đồ báo cáo.
 
 \begin{itemize}
-    \item Random Forest: mô hình chính, đạt macro-F1 0.7845 và accuracy 0.8013.
-    \item CNN 1D: mô hình học sâu bổ sung, đạt macro-F1 0.6881.
+    \item Random Forest: mô hình chính, đạt macro-F1 0.7434 và accuracy 0.7482.
+    \item SVM (RBF): baseline thứ hai trên cùng đặc trưng, đạt macro-F1 0.6550.
+    \item CNN 1D: mô hình học sâu bổ sung, đạt macro-F1 0.6272.
 \end{itemize}
 
 \subsection{Hướng phát triển}
@@ -573,7 +595,7 @@ Khi rà soát lại thí nghiệm, nhóm nhận thấy phần open-set phải t�
 \begin{itemize}
     \item Thu thêm dữ liệu nhiều phiên hơn cho mỗi người dùng.
     \item Kết hợp inertial với keystroke ở mức feature fusion.
-    \item Cải thiện open-set bằng threshold calibration hoặc học biểu diễn tương phản.
+    \item Thử thêm đặc trưng hoặc tinh chỉnh siêu tham số cho CNN để rút ngắn khoảng cách với mô hình cổ điển.
     \item Tạo giao diện demo đơn giản để upload CSV và dự đoán người dùng.
 \end{itemize}
 

@@ -1,0 +1,22 @@
+name: B02_80ep_nosched
+phase: B
+notes: "80 epochs, không scheduler"
+n_splits: 3
+epochs: 80
+batch_size: 128
+seed: 42
+amp: true
+early_stopping_patience: 0
+model: {type: cnn, filters: [32,64,128], kernels: [7,5,3], dropout: 0.3}
+optim: {type: adam, lr: 1.0e-3, weight_decay: 1.0e-4}
+sched: {type: none}
+loss: {type: ce, class_weight: invfreq}
+augment:
+  enabled: true
+  use_jitter: true
+  use_scale: true
+  use_rotation: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1

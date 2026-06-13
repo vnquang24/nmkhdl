@@ -1,0 +1,18 @@
+name: C05_resnet1d
+phase: C
+notes: "ResNet1D filters [64,128,256] dropout 0.3"
+n_splits: 3
+epochs: 80
+batch_size: 128
+seed: 42
+amp: true
+model: {type: resnet, filters: [64,128,256], dropout: 0.3}
+optim: {type: adam, lr: 1.0e-4, weight_decay: 1.0e-4}
+sched: {type: onecycle, max_lr: 3.0e-3}
+loss: {type: ce, class_weight: invfreq}
+augment:
+  enabled: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1

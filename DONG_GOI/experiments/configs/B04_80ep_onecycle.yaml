@@ -1,0 +1,21 @@
+name: B04_80ep_onecycle
+phase: B
+notes: "80 epochs OneCycleLR max_lr=3e-3"
+n_splits: 3
+epochs: 80
+batch_size: 128
+seed: 42
+amp: true
+model: {type: cnn, filters: [32,64,128], kernels: [7,5,3], dropout: 0.3}
+optim: {type: adam, lr: 1.0e-4, weight_decay: 1.0e-4}
+sched: {type: onecycle, max_lr: 3.0e-3}
+loss: {type: ce, class_weight: invfreq}
+augment:
+  enabled: true
+  use_jitter: true
+  use_scale: true
+  use_rotation: true
+  jitter_sigma: 0.02
+  scale_low: 0.9
+  scale_high: 1.1
+  rot_theta: 0.1
